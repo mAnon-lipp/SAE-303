@@ -1,0 +1,37 @@
+/* ============================================
+   US001: Structure et Intégration du SVG
+   Le "Plateau de jeu" - Styles responsives
+   ============================================ */
+
+/* SVG Responsive - styles appliqués sur l'élément racine */
+.graph-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  max-width: 1440px;
+}
+
+/* États interactifs des AC (Apprentissages Critiques) */
+.graph-svg [id^="AC"] {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.graph-svg [id^="AC"]:hover {
+  opacity: 0.8;
+  filter: brightness(1.1);
+}
+
+.graph-svg [id^="AC"].active {
+  filter: drop-shadow(0 0 8px currentColor);
+}
+
+/* Groupes de compétences */
+.graph-svg g[id^="comp-"] {
+  transition: transform 0.3s ease;
+}
+
+/* Groupes de niveaux */
+.graph-svg g[id^="niveau_"] {
+  transition: opacity 0.3s ease;
+}
