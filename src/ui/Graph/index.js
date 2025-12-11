@@ -174,6 +174,9 @@ class GraphView {
    * @param {Object} pnData - Données du programme national (JSON)
    */
   injectACData(pnData) {
+    // Sauvegarder les données pour usage ultérieur
+    this.pnData = pnData;
+    
     for (let compId in pnData) {
       const competence = pnData[compId];
       
@@ -201,6 +204,112 @@ class GraphView {
           }
         }
       }
+    }
+  }
+
+  // ============================================
+  // US004: Méthodes d'interaction
+  // ============================================
+  
+  /**
+   * Active les interactions de clic sur tous les AC
+   * @param {Function} callback - Fonction appelée lors du clic avec les données de l'AC
+   */
+  enableACInteractions(callback) {
+    const allACs = this.getAllACs();
+    
+    allACs.forEach(acElement => {
+      // Rendre l'élément cliquable
+      acElement.style.cursor = 'pointer';
+      
+      // Ajouter l'événement de clic
+      acElement.addEventListener('click', (event) => {
+        const acCode = acElement.getAttribute('id');
+        const acData = this._findACData(acCode);
+        
+        if (acData) {
+          // Mettre à jour l'état visuel avec la couleur de la compétence
+          this.setActiveAC(acCode, acData.couleur);
+          
+          // Appeler le callback avec les données
+          if (callback && typeof callback === 'function') {
+            callback(acData);
+          }
+        }
+      });
+      
+      // Effets hover pour meilleure UX
+      acElement.addEventListener('mouseenter', () => {
+        if (!acElement.classList.contains('ac-active')) {
+          acElement.classList.add('ac-hover');
+        }
+      });
+      
+      acElement.addEventListener('mouseleave', () => {
+        acElement.classList.remove('ac-hover');
+      });
+    });
+  }
+
+  /**
+   * Trouve les données d'un AC par son code
+   * @param {string} acCode - Code de l'AC (ex: "AC12.01")
+   * @returns {Object|null} - Données de l'AC ou null si non trouvé
+   * @private
+   */
+  _findACData(acCode) {
+    if (!this.pnData) return null;
+    
+    for (let compId in this.pnData) {
+      const competence = this.pnData[compId];
+      
+      for (let niveau of competence.niveaux) {
+        for (let ac of niveau.acs) {
+          if (ac.code === acCode) {
+            return {
+              code: ac.code,
+              libelle: ac.libelle,
+              progress: ac.progress || 0, // Progression par défaut à 0 si non définie
+              competence: competence.nom_court,
+              niveau: niveau.libelle,
+              couleur: competence.couleur // Ajouter la couleur de la compétence
+            };
+          }
+        }
+      }
+    }
+    
+    return null;
+  }
+
+  /**
+   * Définit un AC comme actif visuellement
+   * @param {string} acCode - Code de l'AC à activer
+   * @param {string} couleur - Couleur de la compétence (c1, c2, etc.)
+   */
+  setActiveAC(acCode, couleur = 'c1') {
+    // Retirer l'état actif de l'élément précédent
+    if (this.selectedElement) {
+      this.selectedElement.classList.remove('ac-active');
+      this.selectedElement.removeAttribute('data-color');
+    }
+    
+    // Ajouter l'état actif au nouvel élément
+    const acElement = this.getAC(acCode);
+    if (acElement) {
+      acElement.classList.add('ac-active');
+      acElement.setAttribute('data-color', couleur);
+      this.selectedElement = acElement;
+    }
+  }
+
+  /**
+   * Retire l'état actif de tous les AC
+   */
+  clearActiveAC() {
+    if (this.selectedElement) {
+      this.selectedElement.classList.remove('ac-active');
+      this.selectedElement = null;
     }
   }
 }
