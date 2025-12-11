@@ -45,6 +45,59 @@ V.init = function(pnData = M.pnData) {
   // Données prêtes à être mappées
   console.log('Graph initialisé avec', Object.keys(pnData).length, 'compétences');
   
+  // Création d'un mapping entre les codes AC et les données JSON
+  const acMapping = {};
+  for (let key in pnData) {
+    const competence = pnData[key];
+    competence.niveaux.forEach(niveau => {
+      niveau.acs.forEach(ac => {
+        acMapping[ac.code] = {
+          code: ac.code,
+          libelle: ac.libelle,
+          competence: competence.nom_court,
+          niveau: niveau.libelle,
+          annee: niveau.annee
+        };
+      });
+    });
+  }
+  
+  // Ajouter des écouteurs de clic sur tous les polygones d'AC
+  const allACs = V.graph.getAllACs();
+  console.log(`${allACs.length} polygones d'AC trouvés dans le SVG`);
+  
+  allACs.forEach(acElement => {
+    const acCode = acElement.id;
+    
+    // Ajouter un style de survol
+    acElement.style.cursor = 'pointer';
+    
+    // Ajouter l'écouteur de clic
+    acElement.addEventListener('click', () => {
+      const acData = acMapping[acCode];
+      if (acData) {
+        console.log('====================================');
+        console.log('AC CLIQUÉ:', acData.code);
+        console.log('Libellé:', acData.libelle);
+        console.log('Compétence:', acData.competence);
+        console.log('Niveau:', acData.niveau);
+        console.log('Année:', acData.annee);
+        console.log('====================================');
+      } else {
+        console.warn(`⚠️ Aucune donnée trouvée pour l'AC: ${acCode}`);
+      }
+    });
+    
+    // Effet visuel au survol
+    acElement.addEventListener('mouseenter', () => {
+      acElement.style.opacity = '0.7';
+    });
+    
+    acElement.addEventListener('mouseleave', () => {
+      acElement.style.opacity = '1';
+    });
+  });
+  
   return V.rootPage;
 };
 
