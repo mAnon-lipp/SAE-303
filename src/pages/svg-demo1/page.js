@@ -1,4 +1,4 @@
-import { FlowerView } from "@/ui/flower";
+import { GraphView } from "@/ui/Graph";
 import { htmlToDOM } from "@/lib/utils.js";
 import template from "./template.html?raw";
 
@@ -16,8 +16,8 @@ let V = {
 
 V.init = function() {
   V.rootPage = htmlToDOM(template);
-  V.flowers = new FlowerView();
-  V.rootPage.querySelector('slot[name="svg"]').replaceWith( V.flowers.dom() );
+  V.graph = new GraphView();
+  V.rootPage.querySelector('slot[name="svg"]').replaceWith( V.graph.dom() );
   return V.rootPage;
 };
 
