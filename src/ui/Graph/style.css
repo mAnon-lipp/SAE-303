@@ -3,12 +3,36 @@
    Le "Plateau de jeu" - Styles responsives
    ============================================ */
 
+/* Import Jomhuria font pour les labels */
+@import url('https://fonts.googleapis.com/css2?family=Jomhuria&display=swap');
+
 /* SVG Responsive - styles appliqués sur l'élément racine */
 .graph-svg {
   width: 100%;
   height: auto;
   display: block;
   max-width: 1440px;
+}
+
+/* US003: Styles pour les labels de compétences et AC */
+.comp-label,
+.ac-label {
+  font-family: 'Jomhuria', cursive;
+  fill: black;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+  user-select: none;
+}
+
+.comp-label {
+  font-size: 24px;
+  font-weight: 400;
+}
+
+.ac-label {
+  font-size: 12px;
+  font-weight: 600;
 }
 
 /* États interactifs des AC (Apprentissages Critiques) */

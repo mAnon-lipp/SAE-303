@@ -80,7 +80,8 @@ class GraphView {
    * @returns {Element|null}
    */
   getAC(code) {
-    return this.root.querySelector(`#${code}`);
+    // Utiliser un sélecteur d'attribut car les IDs contiennent des points
+    return this.root.querySelector(`[id="${code}"]`);
   }
 
   /**
@@ -158,6 +159,63 @@ class GraphView {
    */
   getSvgElement() {
     return this.root;
+  }
+
+
+  /**
+   * Injecte les codes AC dans le SVG
+   * @param {Object} pnData - Données du programme national (JSON)
+   */
+  injectACData(pnData) {
+    console.log('Début injection des codes AC...');
+    let count = 0;
+    
+    // Parcourir toutes les compétences
+    for (let compId in pnData) {
+      const competence = pnData[compId];
+      
+      // Parcourir tous les niveaux de la compétence
+      competence.niveaux.forEach(niveau => {
+        // Parcourir tous les AC du niveau
+        niveau.acs.forEach(ac => {
+          const acCode = ac.code;
+          const acElement = this.getAC(acCode);
+          
+          if (acElement) {
+            // Récupérer le groupe parent (niveau_X)
+            const parentGroup = acElement.parentElement;
+            
+            try {
+              // Utiliser getBBox() pour obtenir le centre du polygone
+              const bbox = acElement.getBBox();
+              const centerX = bbox.x + bbox.width / 2;
+              const centerY = bbox.y + bbox.height / 2;
+            
+              // Créer l'élément text
+              const textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+              textElement.setAttribute('x', centerX);
+              textElement.setAttribute('y', centerY);
+              textElement.setAttribute('text-anchor', 'middle');
+              textElement.setAttribute('dominant-baseline', 'middle');
+              textElement.setAttribute('class', 'ac-label');
+              textElement.setAttribute('fill', 'black');
+              textElement.setAttribute('font-size', '10');
+              textElement.setAttribute('pointer-events', 'none');
+              textElement.textContent = acCode;
+              
+              // Ajouter le text au même groupe que le path
+              parentGroup.appendChild(textElement);
+              count++;
+            } catch (error) {
+              console.error(`Erreur getBBox pour ${acCode}:`, error);
+            }
+          } else {
+            console.warn(`AC non trouvé dans le SVG: ${acCode}`);
+          }
+        });
+      });
+    }
+    
   }
 }
 

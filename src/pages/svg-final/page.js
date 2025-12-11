@@ -45,6 +45,12 @@ V.init = function(pnData = M.pnData) {
   // Données prêtes à être mappées
   console.log('Graph initialisé avec', Object.keys(pnData).length, 'compétences');
   
+  // US003 : Injection des codes AC dans le SVG
+  // Attendre que le DOM soit prêt pour getBBox()
+  setTimeout(() => {
+    V.graph.injectACData(pnData);
+  }, 0);
+  
   // Création d'un mapping entre les codes AC et les données JSON
   const acMapping = {};
   for (let key in pnData) {
