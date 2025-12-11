@@ -1,10 +1,20 @@
 /* ============================================
    US001: Structure et Intégration du SVG
+   US004: Interaction et Affichage du Détail
    Le "Plateau de jeu" - Styles responsives
    ============================================ */
 
 /* Import Jomhuria font pour les labels */
 @import url('https://fonts.googleapis.com/css2?family=Jomhuria&display=swap');
+
+/* Couleurs des compétences */
+:root {
+  --color-c1: #00E676;  /* COMPRENDRE - Vert */
+  --color-c2: #D500F9;  /* CONCEVOIR - Magenta */
+  --color-c3: #FFD600;  /* EXPRIMER - Jaune */
+  --color-c4: #00F0FF;  /* DEVELOPPER - Cyan */
+  --color-c5: #FF1744;  /* ENTREPRENDRE - Rouge */
+}
 
 /* SVG Responsive - styles appliqués sur l'élément racine */
 .graph-svg {
@@ -38,16 +48,57 @@
 /* États interactifs des AC (Apprentissages Critiques) */
 .graph-svg [id^="AC"] {
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.graph-svg [id^="AC"]:hover {
+/* Effet hover */
+.graph-svg [id^="AC"].ac-hover {
   opacity: 0.8;
-  filter: brightness(1.1);
+  filter: brightness(1.2);
 }
 
-.graph-svg [id^="AC"].active {
-  filter: drop-shadow(0 0 8px currentColor);
+/* Animation de pulsation pour l'état actif */
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 8px var(--glow-color)) brightness(1.2);
+  }
+  50% {
+    opacity: 0.6;
+    filter: drop-shadow(0 0 20px var(--glow-color)) brightness(1.6);
+  }
+}
+
+/* État actif (élément sélectionné) */
+.graph-svg [id^="AC"].ac-active {
+  stroke-width: 2;
+  animation: pulse-glow 1.3s ease-in-out infinite;
+}
+
+/* Halos colorés par compétence */
+.graph-svg [id^="AC"].ac-active[data-color="c1"] {
+  --glow-color: var(--color-c1);
+  stroke: var(--color-c1);
+}
+
+.graph-svg [id^="AC"].ac-active[data-color="c2"] {
+  --glow-color: var(--color-c2);
+  stroke: var(--color-c2);
+}
+
+.graph-svg [id^="AC"].ac-active[data-color="c3"] {
+  --glow-color: var(--color-c3);
+  stroke: var(--color-c3);
+}
+
+.graph-svg [id^="AC"].ac-active[data-color="c4"] {
+  --glow-color: var(--color-c4);
+  stroke: var(--color-c4);
+}
+
+.graph-svg [id^="AC"].ac-active[data-color="c5"] {
+  --glow-color: var(--color-c5);
+  stroke: var(--color-c5);
 }
 
 /* Groupes de compétences */

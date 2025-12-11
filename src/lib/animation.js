@@ -83,5 +83,42 @@ Animation.bounce = function (element, duration = 1, height = 100) {
   });
 };
 
+Animation.progressBar = function (
+  fillElement,
+  valueElement,
+  targetProgress = 0,
+  duration = 1.2,
+  delay = 0.2,
+) {
+  // Créer un objet pour animer le compteur
+  const counter = { value: 100 };
+  
+  // Animation de la barre de progrès (démarre à 100% puis revient au pourcentage réel)
+  gsap.fromTo(
+    fillElement,
+    { width: "100%" },
+    {
+      width: `${targetProgress}%`,
+      duration: duration,
+      ease: "power2.out",
+      delay: delay,
+    },
+  );
+  
+  // Animation du texte du pourcentage synchronisée avec la barre
+  gsap.fromTo(
+    counter,
+    { value: 100 },
+    {
+      value: targetProgress,
+      duration: duration,
+      ease: "power2.out",
+      delay: delay,
+      onUpdate: function () {
+        valueElement.textContent = `${Math.round(counter.value)}%`;
+      },
+    },
+  );
+};
 
 export { Animation };

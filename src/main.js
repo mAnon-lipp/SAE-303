@@ -13,18 +13,12 @@ import { SvgDemo5Page } from "./pages/svg-demo5/page.js";
 
 const router = new Router("app");
 
-router.addLayout("/", RootLayout);
-
-
+// Routes sans layout (plein écran)
 router.addRoute("/", SvgDemo1Page);
 router.addRoute("/svg-final", SvgDemo1Page);
-
 router.addRoute("/svg-demo2", SvgDemo2Page);
-
-
 router.addRoute("/svg-demo3", SvgDemo3Page);
 router.addRoute("/svg-demo4", SvgDemo4Page);
-
 router.addRoute("/svg-demo5", SvgDemo5Page);
 
 router.addRoute("*", The404Page);

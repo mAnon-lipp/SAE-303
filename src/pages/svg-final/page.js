@@ -1,28 +1,15 @@
 import { GraphView } from "@/ui/Graph";
+import { DetailPanel } from "@/ui/DetailPanel/index.js";
 import { htmlToDOM } from "@/lib/utils.js";
 import template from "./template.html?raw";
 
 // US002 : Chargement du Référentiel (JSON)
+// US004 : Interaction et Affichage du Détail
 let M = {};
 
 // Récupération du fichier JSON via fetch()
 let response = await fetch('/src/data/pn.json');
 M.pnData = await response.json();
-
-// Données stockées dans une variable/objet global exploitable
-console.log('=== US002 : Données PN chargées ===');
-console.log('Nombre de compétences:', Object.keys(M.pnData).length);
-
-// Parcours des 5 compétences et leurs sous-niveaux dans la console
-for (let key in M.pnData) {
-  const competence = M.pnData[key];
-  console.log(`\n${competence.numero}. ${competence.nom_court}`);
-  console.log(`   Couleur: ${competence.couleur}`);
-  console.log(`   Niveaux: ${competence.niveaux.length}`);
-  competence.niveaux.forEach(niveau => {
-    console.log(`   - ${niveau.libelle} (${niveau.annee}): ${niveau.acs.length} AC`);
-  });
-}
 
 let C = {};
 
@@ -32,76 +19,38 @@ C.init = function() {
 
 let V = {
   rootPage: null,
-  graph: null
+  graph: null,
+  detailPanel: null
 };
 
 V.init = function(pnData = M.pnData) {
   V.rootPage = htmlToDOM(template);
   
-  // Un seul graph qui contient toutes les compétences
+  // Créer le graphique
   V.graph = new GraphView();
   V.rootPage.querySelector('slot[name="svg"]').replaceWith(V.graph.dom());
   
-  // Données prêtes à être mappées
-  console.log('Graph initialisé avec', Object.keys(pnData).length, 'compétences');
+  // Créer le panneau de détails
+  V.detailPanel = new DetailPanel();
   
-  // US003 : Injection des codes AC dans le SVG
-  // Attendre que le DOM soit prêt pour getBBox()
+  // Injecter les données du PN dans le graphique
   setTimeout(() => {
     V.graph.injectACData(pnData);
+    
+    // Activer les interactions avec le DetailPanel
+    V.graph.enableACInteractions((acData) => {
+      V.detailPanel.open(acData);
+    });
   }, 0);
   
-  // Création d'un mapping entre les codes AC et les données JSON
-  const acMapping = {};
-  for (let key in pnData) {
-    const competence = pnData[key];
-    competence.niveaux.forEach(niveau => {
-      niveau.acs.forEach(ac => {
-        acMapping[ac.code] = {
-          code: ac.code,
-          libelle: ac.libelle,
-          competence: competence.nom_court,
-          niveau: niveau.libelle,
-          annee: niveau.annee
-        };
-      });
-    });
-  }
+  // Monter le panneau de détails dans le DOM
+  setTimeout(() => {
+    V.detailPanel.mount();
+  }, 0);
   
-  // Ajouter des écouteurs de clic sur tous les polygones d'AC
-  const allACs = V.graph.getAllACs();
-  console.log(`${allACs.length} polygones d'AC trouvés dans le SVG`);
-  
-  allACs.forEach(acElement => {
-    const acCode = acElement.id;
-    
-    // Ajouter un style de survol
-    acElement.style.cursor = 'pointer';
-    
-    // Ajouter l'écouteur de clic
-    acElement.addEventListener('click', () => {
-      const acData = acMapping[acCode];
-      if (acData) {
-        console.log('====================================');
-        console.log('AC CLIQUÉ:', acData.code);
-        console.log('Libellé:', acData.libelle);
-        console.log('Compétence:', acData.competence);
-        console.log('Niveau:', acData.niveau);
-        console.log('Année:', acData.annee);
-        console.log('====================================');
-      } else {
-        console.warn(`⚠️ Aucune donnée trouvée pour l'AC: ${acCode}`);
-      }
-    });
-    
-    // Effet visuel au survol
-    acElement.addEventListener('mouseenter', () => {
-      acElement.style.opacity = '0.7';
-    });
-    
-    acElement.addEventListener('mouseleave', () => {
-      acElement.style.opacity = '1';
-    });
+  // Écouter la fermeture du panneau pour retirer l'état actif
+  document.addEventListener('detailpanel:close', () => {
+    V.graph.clearActiveAC();
   });
   
   return V.rootPage;

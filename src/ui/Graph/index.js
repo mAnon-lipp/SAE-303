@@ -4,6 +4,7 @@ import "./style.css";
 
 /**
  * US001: Structure et Intégration du SVG (Le "Plateau de jeu")
+ * US004: Interaction et Affichage du Détail
  * 
  * Cette classe gère l'affichage et l'interaction avec le SVG du Programme National.
  * Le SVG est affiché inline et tous les éléments sont accessibles via querySelector.
@@ -14,6 +15,12 @@ class GraphView {
     // Charger le template et le convertir en DOM
     // Le SVG est directement l'élément racine du template
     this.root = htmlToDOM(template);
+    
+    // Référence aux données du PN (sera injectée plus tard)
+    this.pnData = null;
+    
+    // État pour suivre l'élément actuellement sélectionné
+    this.selectedElement = null;
   }
 
   html() {
@@ -167,55 +174,34 @@ class GraphView {
    * @param {Object} pnData - Données du programme national (JSON)
    */
   injectACData(pnData) {
-    console.log('Début injection des codes AC...');
-    let count = 0;
-    
-    // Parcourir toutes les compétences
     for (let compId in pnData) {
       const competence = pnData[compId];
       
-      // Parcourir tous les niveaux de la compétence
-      competence.niveaux.forEach(niveau => {
-        // Parcourir tous les AC du niveau
-        niveau.acs.forEach(ac => {
-          const acCode = ac.code;
-          const acElement = this.getAC(acCode);
+      for (let niveau of competence.niveaux) {
+        for (let ac of niveau.acs) {
+          const acElement = this.getAC(ac.code);
           
           if (acElement) {
-            // Récupérer le groupe parent (niveau_X)
-            const parentGroup = acElement.parentElement;
-            
             try {
-              // Utiliser getBBox() pour obtenir le centre du polygone
               const bbox = acElement.getBBox();
-              const centerX = bbox.x + bbox.width / 2;
-              const centerY = bbox.y + bbox.height / 2;
-            
-              // Créer l'élément text
-              const textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-              textElement.setAttribute('x', centerX);
-              textElement.setAttribute('y', centerY);
-              textElement.setAttribute('text-anchor', 'middle');
-              textElement.setAttribute('dominant-baseline', 'middle');
-              textElement.setAttribute('class', 'ac-label');
-              textElement.setAttribute('fill', 'black');
-              textElement.setAttribute('font-size', '10');
-              textElement.setAttribute('pointer-events', 'none');
-              textElement.textContent = acCode;
+              const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
               
-              // Ajouter le text au même groupe que le path
-              parentGroup.appendChild(textElement);
-              count++;
-            } catch (error) {
-              console.error(`Erreur getBBox pour ${acCode}:`, error);
-            }
-          } else {
-            console.warn(`AC non trouvé dans le SVG: ${acCode}`);
+              text.textContent = ac.code;
+              text.classList.add('ac-label');
+              text.setAttribute('x', bbox.x + bbox.width / 2);
+              text.setAttribute('y', bbox.y + bbox.height / 2);
+              text.setAttribute('text-anchor', 'middle');
+              text.setAttribute('dominant-baseline', 'middle');
+              text.setAttribute('fill', 'black');
+              text.setAttribute('font-size', '12');
+              text.setAttribute('pointer-events', 'none');
+              
+              acElement.parentElement.appendChild(text);
+            } catch (error) {}
           }
-        });
-      });
+        }
+      }
     }
-    
   }
 }
 
