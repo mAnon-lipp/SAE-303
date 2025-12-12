@@ -1,10 +1,10 @@
 import { GraphView } from "@/ui/Graph";
 import { DetailPanel } from "@/ui/DetailPanel/index.js";
 import { htmlToDOM } from "@/lib/utils.js";
+import { Animation } from "@/lib/animation.js";
 import template from "./template.html?raw";
 
-// US002 : Chargement du Référentiel (JSON)
-// US004 : Interaction et Affichage du Détail
+
 let M = {};
 
 // Récupération du fichier JSON via fetch()
@@ -44,6 +44,9 @@ V.init = function(pnData = M.pnData) {
     V.graph.enableACInteractions((acData) => {
       V.detailPanel.open(acData);
     });
+    
+    // US006: Animation d'apparition du graphe au chargement
+    Animation.revealGraph(V.graph.getSvgElement());
   }, 0);
   
   // Monter le panneau de détails dans le DOM

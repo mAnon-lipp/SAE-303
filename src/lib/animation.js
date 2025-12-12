@@ -121,4 +121,88 @@ Animation.progressBar = function (
   );
 };
 
+Animation.revealGraph = function (svgElement) {
+  // Sélectionner tous les headers de compétences et les AC
+  const headers = svgElement.querySelectorAll('path[id="Concevoir"], path[id="Developper"], path[id="Comprendre"], path[id="Exprimer"], path[id="Entreprendre"]');
+  const allACs = svgElement.querySelectorAll('path[id^="AC"]');
+  const acLabels = svgElement.querySelectorAll('.ac-label');
+  const lines = svgElement.querySelectorAll('line');
+  
+  // Timeline principale avec defaults
+  const tl = gsap.timeline({
+    defaults: {
+      ease: "power2.out"
+    }
+  });
+  
+  // 1. Faire apparaître les headers avec un effet de scale et d'opacité
+  tl.from(headers, {
+    scale: 0,
+    opacity: 0,
+    duration: 0.8,
+    ease: "elastic.out(1, 0.5)",
+    stagger: {
+      amount: 0.5,
+      from: "start"
+    },
+    transformOrigin: "center center"
+  });
+  
+  // 2. Faire apparaître les lignes avec DrawSVG
+  tl.from(lines, {
+    drawSVG: "0%",
+    opacity: 0,
+    duration: 0.6,
+    stagger: {
+      amount: 0.3,
+      from: "start"
+    }
+  }, "-=0.4");
+  
+  // 3. Faire apparaître les AC et leurs labels en cascade
+  tl.from(allACs, {
+    scale: 0,
+    opacity: 0,
+    duration: 0.5,
+    ease: "back.out(1.7)",
+    stagger: {
+      amount: 1.5,
+      from: "center",
+      grid: "auto"
+    },
+    transformOrigin: "center center",
+    clearProps: "opacity,transform"
+  }, "-=0.3")
+  .from(acLabels, {
+    opacity: 0,
+    scale: 0,
+    duration: 0.5,
+    ease: "back.out(1.7)",
+    stagger: {
+      amount: 1.5,
+      from: "center",
+      grid: "auto"
+    },
+    transformOrigin: "center center",
+    clearProps: "opacity,transform"
+  }, "<");
+  
+  // Animation permanente de vague sur les lignes (mouvement vertical)
+  lines.forEach((line, index) => {
+    gsap.to(line, {
+      attr: { 
+        y1: `+=${3 * Math.sin(index * 0.5)}`,
+        y2: `+=${3 * Math.sin(index * 0.5 + Math.PI)}` 
+      },
+      duration: 2,
+      ease: "sine.inOut",
+      repeat: -1,
+      yoyo: true,
+      delay: index * 0.05
+    });
+  });
+  
+  return tl;
+};
+
 export { Animation };

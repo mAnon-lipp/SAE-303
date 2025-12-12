@@ -327,9 +327,9 @@ class GraphView {
     const acElement = this.getAC(acCode);
     if (!acElement) return;
 
-    // Retirer les classes de couleur existantes
+    // Retirer les classes de couleur et d'état existantes
     acElement.classList.remove('ac-color-c1', 'ac-color-c2', 'ac-color-c3', 'ac-color-c4', 'ac-color-c5');
-    acElement.classList.remove('ac-has-progress');
+    acElement.classList.remove('ac-has-progress', 'ac-complete');
     
     // Calculer l'opacité progressive (0.3 minimum → 1.0 maximum)
     const opacity = 0.3 + (progress / 100) * 0.7;
@@ -339,6 +339,11 @@ class GraphView {
       acElement.classList.add('ac-has-progress');
       acElement.classList.add(`ac-color-${couleur}`);
       acElement.style.opacity = opacity;
+      
+      // Ajouter l'effet de glow pour les AC à 100%
+      if (progress === 100) {
+        acElement.classList.add('ac-complete');
+      }
     } else {
       // État non acquis
       acElement.style.opacity = 0.3;
