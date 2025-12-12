@@ -103,3 +103,33 @@
 .graph-svg g[id^="niveau_"] {
   transition: opacity 0.3s ease;
 }
+
+/* ============================================
+   US005: États de progression des AC
+   ============================================ */
+
+/* AC avec progression (opacité gérée dynamiquement par JS) */
+.graph-svg [id^="AC"].ac-has-progress {
+  transition: opacity 0.3s ease, fill 0.3s ease;
+}
+
+/* Couleurs par compétence (appliquées avec la progression) */
+.graph-svg [id^="AC"].ac-color-c1 {
+  fill: var(--color-c1);
+}
+
+.graph-svg [id^="AC"].ac-color-c2 {
+  fill: var(--color-c2);
+}
+
+.graph-svg [id^="AC"].ac-color-c3 {
+  fill: var(--color-c3);
+}
+
+.graph-svg [id^="AC"].ac-color-c4 {
+  fill: var(--color-c4);
+}
+
+.graph-svg [id^="AC"].ac-color-c5 {
+  fill: var(--color-c5);
+}

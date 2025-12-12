@@ -12,10 +12,21 @@
     
     <div class="detail-panel__progress">
       <h3 class="detail-panel__progress-title">Niveau de savoir</h3>
-      <div class="detail-panel__progress-bar">
+      <div class="detail-panel__slider-container">
+        <input 
+          type="range" 
+          id="progress-slider" 
+          class="detail-panel__slider"
+          data-field="slider"
+          min="0" 
+          max="100" 
+          value="0"
+          step="1"
+        />
         <div class="detail-panel__progress-fill" data-field="progress" style="width: 0%"></div>
       </div>
       <span class="detail-panel__progress-value" data-field="progress-value">0%</span>
+      <button class="detail-panel__validate-btn" data-field="validate-btn">Valider</button>
     </div>
   </div>
 </aside>

@@ -312,6 +312,54 @@ class GraphView {
       this.selectedElement = null;
     }
   }
+
+  // ============================================
+  // US005: Gestion de la Progression
+  // ============================================
+
+  /**
+   * Met à jour la progression visuelle d'un AC dans le SVG
+   * @param {string} acCode - Code de l'AC (ex: "AC12.01")
+   * @param {number} progress - Progression en pourcentage (0-100)
+   * @param {string} couleur - Couleur de la compétence (c1, c2, c3, c4, c5)
+   */
+  updateACProgress(acCode, progress, couleur) {
+    const acElement = this.getAC(acCode);
+    if (!acElement) return;
+
+    // Retirer les classes de couleur existantes
+    acElement.classList.remove('ac-color-c1', 'ac-color-c2', 'ac-color-c3', 'ac-color-c4', 'ac-color-c5');
+    acElement.classList.remove('ac-has-progress');
+    
+    // Calculer l'opacité progressive (0.3 minimum → 1.0 maximum)
+    const opacity = 0.3 + (progress / 100) * 0.7;
+    
+    // Appliquer la classe de couleur et l'opacité
+    if (progress > 0) {
+      acElement.classList.add('ac-has-progress');
+      acElement.classList.add(`ac-color-${couleur}`);
+      acElement.style.opacity = opacity;
+    } else {
+      // État non acquis
+      acElement.style.opacity = 0.3;
+      // La couleur par défaut #D9D9D9 est dans le CSS
+    }
+    
+    // Mettre à jour les données en mémoire
+    if (this.pnData) {
+      for (let compId in this.pnData) {
+        const competence = this.pnData[compId];
+        for (let niveau of competence.niveaux) {
+          for (let ac of niveau.acs) {
+            if (ac.code === acCode) {
+              ac.progress = progress;
+              return;
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 export { GraphView };

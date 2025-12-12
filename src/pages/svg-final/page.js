@@ -33,6 +33,9 @@ V.init = function(pnData = M.pnData) {
   // Créer le panneau de détails
   V.detailPanel = new DetailPanel();
   
+  // Connecter le DetailPanel au GraphView pour les mises à jour de progression
+  V.detailPanel.setGraphView(V.graph);
+  
   // Injecter les données du PN dans le graphique
   setTimeout(() => {
     V.graph.injectACData(pnData);
@@ -51,6 +54,11 @@ V.init = function(pnData = M.pnData) {
   // Écouter la fermeture du panneau pour retirer l'état actif
   document.addEventListener('detailpanel:close', () => {
     V.graph.clearActiveAC();
+  });
+  
+  // Écouter les changements de progression
+  document.addEventListener('detailpanel:progresschange', (e) => {
+    console.log('Progression mise à jour:', e.detail);
   });
   
   return V.rootPage;

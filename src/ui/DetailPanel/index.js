@@ -14,6 +14,7 @@ class DetailPanel {
     this.root = htmlToDOM(template);
     this.overlay = null;
     this.currentAC = null;
+    this.graphView = null; // Référence au GraphView pour mettre à jour le SVG
     
     // Références aux éléments du DOM
     this.closeButton = this.root.querySelector('.detail-panel__close');
@@ -21,6 +22,11 @@ class DetailPanel {
     this.libelleElement = this.root.querySelector('[data-field="libelle"]');
     this.progressFill = this.root.querySelector('[data-field="progress"]');
     this.progressValue = this.root.querySelector('[data-field="progress-value"]');
+    this.slider = this.root.querySelector('[data-field="slider"]');
+    this.validateBtn = this.root.querySelector('[data-field="validate-btn"]');
+    
+    // Valeur temporaire du slider avant validation
+    this.tempProgress = 0;
     
     // Initialisation
     this._init();
@@ -52,6 +58,70 @@ class DetailPanel {
         this.close();
       }
     });
+    
+    // Gestion du slider de progression (mise à jour visuelle uniquement)
+    this.slider.addEventListener('input', (e) => {
+      this._handleSliderInput(parseInt(e.target.value));
+    });
+    
+    // Validation de la progression au clic sur le bouton
+    this.validateBtn.addEventListener('click', () => {
+      this._validateProgress();
+    });
+  }
+  
+  /**
+   * Définit la référence au GraphView
+   * @param {GraphView} graphView - Instance du GraphView
+   */
+  setGraphView(graphView) {
+    this.graphView = graphView;
+  }
+  
+  /**
+   * Gère le changement du slider (mise à jour visuelle uniquement)
+   * @param {number} value - Nouvelle valeur de progression (0-100)
+   * @private
+   */
+  _handleSliderInput(value) {
+    if (!this.currentAC) return;
+    
+    // Stocker la valeur temporaire
+    this.tempProgress = value;
+    
+    // Mettre à jour uniquement la barre de progrès et le texte
+    this.progressFill.style.width = `${value}%`;
+    this.progressValue.textContent = `${value}%`;
+  }
+  
+  /**
+   * Valide la progression et met à jour le SVG et les données
+   * @private
+   */
+  _validateProgress() {
+    if (!this.currentAC) return;
+    
+    const value = this.tempProgress;
+    
+    // Mettre à jour l'objet de données en mémoire
+    this.currentAC.progress = value;
+    
+    // Mettre à jour l'apparence du polygone SVG
+    if (this.graphView) {
+      this.graphView.updateACProgress(this.currentAC.code, value, this.currentAC.couleur);
+    }
+    
+    // Émettre un événement pour informer des changements
+    const event = new CustomEvent('detailpanel:progresschange', {
+      detail: { 
+        ac: this.currentAC,
+        progress: value
+      }
+    });
+    document.dispatchEvent(event);
+    
+    // Fermer le panneau après validation
+    this.close();
   }
 
   /**
@@ -97,6 +167,10 @@ class DetailPanel {
     
     // Gérer la progression (optionnelle)
     const progress = acData.progress || 0;
+    
+    // Mettre à jour le slider et la valeur temporaire
+    this.slider.value = progress;
+    this.tempProgress = progress;
     
     // Animation de la barre de progrès avec GSAP
     Animation.progressBar(this.progressFill, this.progressValue, progress);
