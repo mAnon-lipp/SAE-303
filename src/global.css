@@ -22,6 +22,19 @@
   --color-blue-500: #3b82f6;
   --color-green-500: #10b981;
   --color-red-500: #ef4444;
+  
+  --color-c1: #00E676; 
+  --color-c2: #D500F9;  
+  --color-c3: #FFD600;  
+  --color-c4: #00F0FF;  
+  --color-c5: #FF1744;  
+
+  
+  --color-comprendre: var(--color-c1);
+  --color-concevoir: var(--color-c2);
+  --color-exprimer: var(--color-c3);
+  --color-developper: var(--color-c4);
+  --color-entreprendre: var(--color-c5);
 
   /* Semantics Tokens*/
   --color-bg: var(--color-neutral-100);

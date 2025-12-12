@@ -7,14 +7,7 @@
 /* Import Jomhuria font pour les labels */
 @import url('https://fonts.googleapis.com/css2?family=Jomhuria&display=swap');
 
-/* Couleurs des compétences */
-:root {
-  --color-c1: #00E676;  /* COMPRENDRE - Vert */
-  --color-c2: #D500F9;  /* CONCEVOIR - Magenta */
-  --color-c3: #FFD600;  /* EXPRIMER - Jaune */
-  --color-c4: #00F0FF;  /* DEVELOPPER - Cyan */
-  --color-c5: #FF1744;  /* ENTREPRENDRE - Rouge */
-}
+
 
 /* SVG Responsive - styles appliqués sur l'élément racine */
 .graph-svg {
