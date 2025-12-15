@@ -205,4 +205,62 @@ Animation.revealGraph = function (svgElement) {
   return tl;
 };
 
+/**
+ * Animation d'ouverture/fermeture d'un panneau latéral
+ * @param {HTMLElement} panel - L'élément du panneau
+ * @param {HTMLElement} overlay - L'overlay de fond
+ * @param {boolean} isOpen - true pour ouvrir, false pour fermer
+ */
+Animation.slidePanel = function(panel, overlay, isOpen) {
+  if (isOpen) {
+    // Ouvrir
+    const tl = gsap.timeline();
+    tl.to(overlay, {
+      opacity: 1,
+      duration: 0.3,
+      ease: "power2.out"
+    })
+    .to(panel, {
+      x: 0,
+      duration: 0.4,
+      ease: "power3.out"
+    }, "<0.1");
+    return tl;
+  } else {
+    // Fermer - calculer la largeur du panneau + 2rem
+    const panelWidth = panel.offsetWidth;
+    const remInPx = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    const offsetX = panelWidth + (2 * remInPx);
+    
+    const tl = gsap.timeline();
+    tl.to(panel, {
+      x: offsetX,
+      duration: 0.3,
+      ease: "power2.in"
+    })
+    .to(overlay, {
+      opacity: 0,
+      duration: 0.2,
+      ease: "power2.out"
+    }, "<0.1");
+    return tl;
+  }
+};
+
+/**
+ * Animation d'apparition en cascade d'éléments
+ * @param {HTMLElement[]} elements - Tableau d'éléments à animer
+ * @param {number} staggerDelay - Délai entre chaque élément (default: 0.05)
+ */
+Animation.staggerFadeIn = function(elements, staggerDelay = 0.05) {
+  gsap.from(elements, {
+    opacity: 0,
+    x: 20,
+    duration: 0.3,
+    stagger: staggerDelay,
+    ease: "power2.out",
+    clearProps: "opacity,x" // Nettoie les propriétés après animation
+  });
+};
+
 export { Animation };

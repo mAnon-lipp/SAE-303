@@ -12,15 +12,29 @@ const STORAGE_VERSION = '1.0';
  * Sauvegarde la progression d'un AC dans le localStorage
  * @param {string} acCode - Code de l'AC (ex: "AC11.01")
  * @param {number} progress - Progression en pourcentage (0-100)
+ * @param {number} oldProgress - Ancienne progression (pour historique)
+ * @param {string} label - Libellé de l'AC (pour historique)
  */
-function saveACProgress(acCode, progress) {
+function saveACProgress(acCode, progress, oldProgress = null, label = '') {
     try {
         // Récupérer les données existantes
         const data = loadAll() || createEmptyData();
         
+        // S'assurer que les champs nécessaires existent (migration)
+        if (!data.progress) data.progress = {};
+        if (!data.history) data.history = [];
+        
+        // Récupérer l'ancienne progression si non fournie
+        if (oldProgress === null) {
+            oldProgress = data.progress[acCode] || 0;
+        }
+        
         // Mettre à jour la progression
         data.progress[acCode] = progress;
         data.lastUpdate = new Date().toISOString();
+        
+        // Ajouter une entrée dans l'historique
+        addHistoryEntry(data, acCode, oldProgress, progress, label);
         
         // Sauvegarder dans localStorage
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -29,6 +43,28 @@ function saveACProgress(acCode, progress) {
     } catch (error) {
         console.error('[Storage] Erreur lors de la sauvegarde:', error);
     }
+}
+
+/**
+ * Ajoute une entrée dans l'historique
+ * @param {Object} data - Objet de données
+ * @param {string} acCode - Code de l'AC
+ * @param {number} oldProgress - Ancienne progression
+ * @param {number} newProgress - Nouvelle progression
+ * @param {string} label - Libellé de l'AC
+ * @private
+ */
+function addHistoryEntry(data, acCode, oldProgress, newProgress, label) {
+    // Ne pas enregistrer si pas de changement
+    if (oldProgress === newProgress) return;
+    
+    data.history.push({
+        date: new Date().toISOString(),
+        ac: acCode,
+        oldProgress,
+        newProgress,
+        label
+    });
 }
 
 /**
@@ -73,7 +109,8 @@ function createEmptyData() {
     return {
         version: STORAGE_VERSION,
         lastUpdate: new Date().toISOString(),
-        progress: {}
+        progress: {},
+        history: []
     };
 }
 
@@ -86,6 +123,43 @@ function clearAll() {
         console.log('[Storage] Toutes les progressions effacées');
     } catch (error) {
         console.error('[Storage] Erreur lors de l\'effacement:', error);
+    }
+}
+
+/**
+ * Charge l'historique trié par date (plus récent d'abord)
+ * @returns {Array} - Tableau des entrées d'historique
+ */
+function loadHistory() {
+    const data = loadAll();
+    if (!data || !data.history) return [];
+    
+    // Trier par date décroissante (plus récent d'abord)
+    return [...data.history].sort((a, b) => 
+        new Date(b.date) - new Date(a.date)
+    );
+}
+
+/**
+ * Exporte toutes les données en JSON téléchargeable
+ */
+function exportData() {
+    try {
+        const data = loadAll() || createEmptyData();
+        const blob = new Blob([JSON.stringify(data, null, 2)], { 
+            type: 'application/json' 
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const date = new Date().toISOString().split('T')[0];
+        a.download = `sae303-backup-${date}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        console.log('[Storage] Données exportées');
+    } catch (error) {
+        console.error('[Storage] Erreur lors de l\'export:', error);
     }
 }
 
@@ -110,6 +184,8 @@ export {
     saveACProgress,
     loadAll,
     loadProgressMap,
+    loadHistory,
+    exportData,
     clearAll,
     getStats
 };

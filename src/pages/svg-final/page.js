@@ -1,5 +1,6 @@
 import { GraphView } from "@/ui/Graph";
 import { DetailPanel } from "@/ui/DetailPanel/index.js";
+import { HistoryPanel } from "@/ui/HistoryPanel/index.js";
 import { htmlToDOM } from "@/lib/utils.js";
 import { Animation } from "@/lib/animation.js";
 import { loadProgressMap } from "@/lib/storage.js";
@@ -21,7 +22,9 @@ C.init = function() {
 let V = {
   rootPage: null,
   graph: null,
-  detailPanel: null
+  detailPanel: null,
+  historyPanel: null,
+  historyButton: null
 };
 
 V.init = function(pnData = M.pnData) {
@@ -66,14 +69,25 @@ V.init = function(pnData = M.pnData) {
     V.detailPanel.mount();
   }, 0);
   
+  // US008: Créer et monter le panneau d'historique
+  V.historyPanel = new HistoryPanel();
+  document.body.appendChild(V.historyPanel.dom());
+  
+  // Connecter le bouton d'historique du template
+  V.historyButton = V.rootPage.querySelector('#history-toggle');
+  V.historyButton.addEventListener('click', () => {
+    V.historyPanel.open();
+  });
+  
   // Écouter la fermeture du panneau pour retirer l'état actif
   document.addEventListener('detailpanel:close', () => {
     V.graph.clearActiveAC();
   });
   
-  // Écouter les changements de progression
+  // Écouter les changements de progression pour rafraîchir l'historique
   document.addEventListener('detailpanel:progresschange', (e) => {
     console.log('Progression mise à jour:', e.detail);
+    V.historyPanel.refresh();
   });
   
   return V.rootPage;

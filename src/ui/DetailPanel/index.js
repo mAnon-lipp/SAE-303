@@ -4,264 +4,161 @@ import "./style.css";
 import { Animation } from "@/lib/animation.js";
 import { saveACProgress } from "@/lib/storage.js";
 
-/**
- * US004: Interaction et Affichage du Détail
- * 
- * Composant de panneau latéral qui affiche les détails d'un AC (Apprentissage Critique)
- * lorsqu'on clique sur un élément du graphique SVG.
- */
 class DetailPanel {
   constructor() {
     this.root = htmlToDOM(template);
-    this.overlay = null;
+    this.overlay = this._createOverlay();
     this.currentAC = null;
-    this.graphView = null; // Référence au GraphView pour mettre à jour le SVG
-    
-    // Références aux éléments du DOM
-    this.closeButton = this.root.querySelector('.detail-panel__close');
-    this.codeElement = this.root.querySelector('[data-field="code"]');
-    this.libelleElement = this.root.querySelector('[data-field="libelle"]');
-    this.progressFill = this.root.querySelector('[data-field="progress"]');
-    this.progressValue = this.root.querySelector('[data-field="progress-value"]');
-    this.slider = this.root.querySelector('[data-field="slider"]');
-    this.validateBtn = this.root.querySelector('[data-field="validate-btn"]');
-    
-    // Valeur temporaire du slider avant validation
+    this.graphView = null;
     this.tempProgress = 0;
     
-    // Initialisation
-    this._init();
+    // Sélection groupée des éléments DOM
+    this.elements = {
+      close: this.root.querySelector('.detail-panel__close'),
+      code: this.root.querySelector('[data-field="code"]'),
+      libelle: this.root.querySelector('[data-field="libelle"]'),
+      progressFill: this.root.querySelector('[data-field="progress"]'),
+      progressValue: this.root.querySelector('[data-field="progress-value"]'),
+      slider: this.root.querySelector('[data-field="slider"]'),
+      validateBtn: this.root.querySelector('[data-field="validate-btn"]')
+    };
+    
+    this._setupEventListeners();
   }
 
-  /**
-   * Initialise les écouteurs d'événements
-   * @private
-   */
-  _init() {
-    // Créer l'overlay pour fermer le panneau
-    this.overlay = document.createElement('div');
-    this.overlay.className = 'detail-panel-overlay';
-    this.overlay.setAttribute('data-state', 'closed');
-    
-    // Fermeture via le bouton close
-    this.closeButton.addEventListener('click', () => {
-      this.close();
-    });
-    
-    // Fermeture via l'overlay
-    this.overlay.addEventListener('click', () => {
-      this.close();
-    });
-    
-    // Fermeture via la touche Échap
+  _createOverlay() {
+    const overlay = document.createElement('div');
+    overlay.className = 'detail-panel-overlay';
+    overlay.setAttribute('data-state', 'closed');
+    return overlay;
+  }
+
+  _setupEventListeners() {
+    // Fermeture (3 méthodes -> 1 handler)
+    const closeHandler = () => this.close();
+    this.elements.close.addEventListener('click', closeHandler);
+    this.overlay.addEventListener('click', closeHandler);
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && this.isOpen()) {
-        this.close();
-      }
+      if (e.key === 'Escape' && this.isOpen()) closeHandler();
     });
     
-    // Gestion du slider de progression (mise à jour visuelle uniquement)
-    this.slider.addEventListener('input', (e) => {
-      this._handleSliderInput(parseInt(e.target.value));
+    // Slider et validation
+    this.elements.slider.addEventListener('input', (e) => {
+      this.tempProgress = parseInt(e.target.value);
+      this._updateProgressVisual(this.tempProgress);
     });
     
-    // Validation de la progression au clic sur le bouton
-    this.validateBtn.addEventListener('click', () => {
-      this._validateProgress();
-    });
+    this.elements.validateBtn.addEventListener('click', () => this._validateProgress());
   }
-  
-  /**
-   * Définit la référence au GraphView
-   * @param {GraphView} graphView - Instance du GraphView
-   */
-  setGraphView(graphView) {
-    this.graphView = graphView;
+
+  _updateProgressVisual(value) {
+    this.elements.progressFill.style.width = `${value}%`;
+    this.elements.progressValue.textContent = `${value}%`;
   }
-  
-  /**
-   * Gère le changement du slider (mise à jour visuelle uniquement)
-   * @param {number} value - Nouvelle valeur de progression (0-100)
-   * @private
-   */
-  _handleSliderInput(value) {
-    if (!this.currentAC) return;
-    
-    // Stocker la valeur temporaire
-    this.tempProgress = value;
-    
-    // Mettre à jour uniquement la barre de progrès et le texte
-    this.progressFill.style.width = `${value}%`;
-    this.progressValue.textContent = `${value}%`;
-  }
-  
-  /**
-   * Valide la progression et met à jour le SVG et les données
-   * @private
-   */
+
   _validateProgress() {
     if (!this.currentAC) return;
     
-    const value = this.tempProgress;
+    const oldProgress = this.currentAC.progress || 0;
+    this.currentAC.progress = this.tempProgress;
     
-    // Mettre à jour l'objet de données en mémoire
-    this.currentAC.progress = value;
+    // Mise à jour SVG
+    this.graphView?.updateACProgress(
+      this.currentAC.code, 
+      this.tempProgress, 
+      this.currentAC.couleur
+    );
     
-    // Mettre à jour l'apparence du polygone SVG
-    if (this.graphView) {
-      this.graphView.updateACProgress(this.currentAC.code, value, this.currentAC.couleur);
-    }
+    // Sauvegarde
+    saveACProgress(
+      this.currentAC.code, 
+      this.tempProgress, 
+      oldProgress, 
+      this.currentAC.libelle
+    );
     
-    // US007: Sauvegarder dans localStorage
-    saveACProgress(this.currentAC.code, value);
-    
-    // Émettre un événement pour informer des changements
-    const event = new CustomEvent('detailpanel:progresschange', {
+    // Événement
+    document.dispatchEvent(new CustomEvent('detailpanel:progresschange', {
       detail: { 
         ac: this.currentAC,
-        progress: value
+        progress: this.tempProgress,
+        acCode: this.currentAC.code,
+        couleur: this.currentAC.couleur
       }
-    });
-    document.dispatchEvent(event);
+    }));
     
-    // Fermer le panneau après validation
     this.close();
   }
 
-  /**
-   * Retourne le HTML du composant
-   * @returns {string}
-   */
-  html() {
-    return template;
+  setGraphView(graphView) {
+    this.graphView = graphView;
   }
 
-  /**
-   * Retourne l'élément DOM du composant
-   * @returns {Element}
-   */
   dom() {
     return this.root;
   }
 
-  /**
-   * Injecte le composant dans le DOM
-   * @param {Element} container - Conteneur où injecter le panneau (par défaut document.body)
-   */
   mount(container = document.body) {
     container.appendChild(this.overlay);
     container.appendChild(this.root);
   }
 
-  /**
-   * Ouvre le panneau avec les données d'un AC
-   * @param {Object} acData - Données de l'AC
-   * @param {string} acData.code - Code de l'AC (ex: "AC12.01")
-   * @param {string} acData.libelle - Libellé de l'AC
-   * @param {number} acData.progress - Progression en pourcentage (0-100)
-   * @param {string} acData.couleur - Couleur de la compétence (c1, c2, c3, c4, c5)
-   */
   open(acData) {
-    // Sauvegarder l'AC actuel
     this.currentAC = acData;
     
-    // Mettre à jour le contenu
-    this.codeElement.textContent = acData.code;
-    this.libelleElement.textContent = acData.libelle;
+    // Mise à jour du contenu
+    this.elements.code.textContent = acData.code;
+    this.elements.libelle.textContent = acData.libelle;
     
-    // Gérer la progression (optionnelle)
+    // Progression
     const progress = acData.progress || 0;
-    
-    // Mettre à jour le slider et la valeur temporaire
-    this.slider.value = progress;
+    this.elements.slider.value = progress;
     this.tempProgress = progress;
+    Animation.progressBar(this.elements.progressFill, this.elements.progressValue, progress);
     
-    // Animation de la barre de progrès avec GSAP
-    Animation.progressBar(this.progressFill, this.progressValue, progress);
-    
-    // Appliquer la couleur de la compétence
+    // Couleur
     if (acData.couleur) {
       this.root.style.setProperty('--panel-color', `var(--color-${acData.couleur})`);
     }
     
-    // Ouvrir le panneau et l'overlay
-    this.root.setAttribute('data-state', 'open');
-    this.overlay.setAttribute('data-state', 'open');
-    
-    // Empêcher le scroll du body
+    // Ouverture
+    this._setState('open');
     document.body.style.overflow = 'hidden';
     
-    // Émettre un événement personnalisé
-    const event = new CustomEvent('detailpanel:open', { 
+    document.dispatchEvent(new CustomEvent('detailpanel:open', { 
       detail: { ac: acData } 
-    });
-    document.dispatchEvent(event);
+    }));
   }
 
-  /**
-   * Ferme le panneau
-   */
   close() {
-    this.root.setAttribute('data-state', 'closed');
-    this.overlay.setAttribute('data-state', 'closed');
-    
-    // Restaurer le scroll du body
+    this._setState('closed');
     document.body.style.overflow = '';
     
-    // Émettre un événement personnalisé
-    const event = new CustomEvent('detailpanel:close', { 
+    document.dispatchEvent(new CustomEvent('detailpanel:close', { 
       detail: { ac: this.currentAC } 
-    });
-    document.dispatchEvent(event);
+    }));
     
-    // Réinitialiser l'AC actuel
     this.currentAC = null;
   }
 
-  /**
-   * Vérifie si le panneau est ouvert
-   * @returns {boolean}
-   */
+  _setState(state) {
+    this.root.setAttribute('data-state', state);
+    this.overlay.setAttribute('data-state', state);
+  }
+
   isOpen() {
     return this.root.getAttribute('data-state') === 'open';
   }
 
-  /**
-   * Toggle l'état du panneau
-   * @param {Object} acData - Données de l'AC (requis si fermé)
-   */
   toggle(acData) {
-    if (this.isOpen()) {
-      this.close();
-    } else {
-      this.open(acData);
-    }
+    this.isOpen() ? this.close() : this.open(acData);
   }
 
-  /**
-   * Met à jour les données affichées sans fermer/ouvrir le panneau
-   * @param {Object} acData - Nouvelles données de l'AC
-   */
   update(acData) {
     if (!this.isOpen()) return;
-    
-    this.currentAC = acData;
-    this.codeElement.textContent = acData.code;
-    this.libelleElement.textContent = acData.libelle;
-    
-    const progress = acData.progress || 0;
-    this.progressFill.style.width = `${progress}%`;
-    this.progressValue.textContent = `${progress}%`;
-    
-    // Mettre à jour la couleur
-    if (acData.couleur) {
-      this.root.style.setProperty('--panel-color', `var(--color-${acData.couleur})`);
-    }
+    this.open(acData); // Réutilise la logique d'open
   }
 
-  /**
-   * Détruit le composant et nettoie les écouteurs
-   */
   destroy() {
     this.close();
     this.root.remove();
