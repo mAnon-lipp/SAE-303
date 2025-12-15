@@ -2,6 +2,7 @@ import { htmlToDOM } from "@/lib/utils.js";
 import template from "./template.html?raw";
 import "./style.css";
 import { Animation } from "@/lib/animation.js";
+import { saveACProgress } from "@/lib/storage.js";
 
 /**
  * US004: Interaction et Affichage du Détail
@@ -110,6 +111,9 @@ class DetailPanel {
     if (this.graphView) {
       this.graphView.updateACProgress(this.currentAC.code, value, this.currentAC.couleur);
     }
+    
+    // US007: Sauvegarder dans localStorage
+    saveACProgress(this.currentAC.code, value);
     
     // Émettre un événement pour informer des changements
     const event = new CustomEvent('detailpanel:progresschange', {

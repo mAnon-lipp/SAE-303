@@ -365,6 +365,37 @@ class GraphView {
       }
     }
   }
+
+  /**
+   * US007: Applique un ensemble de progressions depuis le localStorage
+   * @param {Object} progressMap - Map des progressions {acCode: progress, ...}
+   */
+  applyProgressMap(progressMap) {
+    if (!this.pnData) {
+      console.warn('[GraphView] Impossible d\'appliquer les progressions: pnData non initialisé');
+      return;
+    }
+
+    let appliedCount = 0;
+
+    // Parcourir toutes les progressions sauvegardées
+    for (const acCode in progressMap) {
+      const progress = progressMap[acCode];
+      
+      // Trouver les données de l'AC pour obtenir sa couleur
+      const acData = this._findACData(acCode);
+      
+      if (acData) {
+        // Appliquer la progression visuellement
+        this.updateACProgress(acCode, progress, acData.couleur);
+        appliedCount++;
+      } else {
+        console.warn(`[GraphView] AC non trouvé: ${acCode}`);
+      }
+    }
+
+    console.log(`[GraphView] ${appliedCount} progressions appliquées`);
+  }
 }
 
 export { GraphView };
