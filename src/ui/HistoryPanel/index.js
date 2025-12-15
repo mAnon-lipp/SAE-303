@@ -1,5 +1,4 @@
 import { htmlToDOM } from "@/lib/utils.js";
-import { loadHistory, exportData, getStats } from "@/lib/storage.js";
 import { Animation } from "@/lib/animation.js";
 import template from "./template.html?raw";
 import "./style.css";
@@ -7,9 +6,7 @@ import "./style.css";
 class HistoryPanel {
   constructor() {
     this.root = htmlToDOM(template);
-    this.isOpen = false;
     
-    // Sélection groupée des éléments
     this.elements = {
       overlay: this.root.querySelector(".history-panel-overlay"),
       panel: this.root.querySelector(".history-panel__content"),
@@ -24,14 +21,11 @@ class HistoryPanel {
   }
   
   _setupEvents() {
-    // Fermeture
-    const closeHandler = () => this.close();
-    this.elements.close.addEventListener("click", closeHandler);
-    this.elements.overlay.addEventListener("click", closeHandler);
+    this.elements.close.addEventListener("click", () => this.close());
+    this.elements.overlay.addEventListener("click", () => this.close());
     
-    // Export avec feedback
     this.elements.export.addEventListener("click", () => {
-      exportData();
+      document.dispatchEvent(new CustomEvent('historypanel:export'));
       this._showExportFeedback();
     });
   }
@@ -49,19 +43,16 @@ class HistoryPanel {
   }
   
   open() {
-    if (this.isOpen) return;
+    if (this.root.classList.contains("is-open")) return;
     
-    this.isOpen = true;
     this.root.classList.add("is-open");
-    this.refresh();
+    document.dispatchEvent(new CustomEvent('historypanel:open'));
     
     Animation.slidePanel(this.elements.panel, this.elements.overlay, true);
   }
   
   close() {
-    if (!this.isOpen) return;
-    
-    this.isOpen = false;
+    if (!this.root.classList.contains("is-open")) return;
     
     const tl = Animation.slidePanel(this.elements.panel, this.elements.overlay, false);
     tl.eventCallback('onComplete', () => {
@@ -69,11 +60,7 @@ class HistoryPanel {
     });
   }
   
-  refresh() {
-    const history = loadHistory();
-    const stats = getStats();
-    
-    // Mise à jour des stats
+  setData(history, stats) {
     this.elements.count.textContent = `${history.length} modification(s)`;
     this.elements.lastUpdate.textContent = stats.lastUpdate 
       ? `Dernière mise à jour : ${this._formatDate(new Date(stats.lastUpdate))}`
@@ -93,13 +80,13 @@ class HistoryPanel {
       return;
     }
     
-    // Créer et animer les items
     this.elements.list.innerHTML = "";
-    const items = history.map(entry => {
-      const item = this._createItem(entry);
+    const items = [];
+    for (let i = 0; i < history.length; i++) {
+      const item = this._createItem(history[i]);
       this.elements.list.appendChild(item);
-      return item;
-    });
+      items.push(item);
+    }
     
     Animation.staggerFadeIn(items);
   }

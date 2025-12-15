@@ -2,14 +2,12 @@ import { htmlToDOM } from "@/lib/utils.js";
 import template from "./template.html?raw";
 import "./style.css";
 import { Animation } from "@/lib/animation.js";
-import { saveACProgress } from "@/lib/storage.js";
 
 class DetailPanel {
   constructor() {
     this.root = htmlToDOM(template);
     this.overlay = this._createOverlay();
     this.currentAC = null;
-    this.graphView = null;
     this.tempProgress = 0;
     
     // Sélection groupée des éléments DOM
@@ -59,39 +57,18 @@ class DetailPanel {
   _validateProgress() {
     if (!this.currentAC) return;
     
-    const oldProgress = this.currentAC.progress || 0;
-    this.currentAC.progress = this.tempProgress;
-    
-    // Mise à jour SVG
-    this.graphView?.updateACProgress(
-      this.currentAC.code, 
-      this.tempProgress, 
-      this.currentAC.couleur
-    );
-    
-    // Sauvegarde
-    saveACProgress(
-      this.currentAC.code, 
-      this.tempProgress, 
-      oldProgress, 
-      this.currentAC.libelle
-    );
-    
-    // Événement
+    // Envoyer toutes les données au contrôleur
     document.dispatchEvent(new CustomEvent('detailpanel:progresschange', {
       detail: { 
-        ac: this.currentAC,
-        progress: this.tempProgress,
         acCode: this.currentAC.code,
+        progress: this.tempProgress,
+        oldProgress: this.currentAC.progress || 0,
+        libelle: this.currentAC.libelle,
         couleur: this.currentAC.couleur
       }
     }));
     
     this.close();
-  }
-
-  setGraphView(graphView) {
-    this.graphView = graphView;
   }
 
   dom() {
@@ -148,21 +125,6 @@ class DetailPanel {
 
   isOpen() {
     return this.root.getAttribute('data-state') === 'open';
-  }
-
-  toggle(acData) {
-    this.isOpen() ? this.close() : this.open(acData);
-  }
-
-  update(acData) {
-    if (!this.isOpen()) return;
-    this.open(acData); // Réutilise la logique d'open
-  }
-
-  destroy() {
-    this.close();
-    this.root.remove();
-    this.overlay.remove();
   }
 }
 
