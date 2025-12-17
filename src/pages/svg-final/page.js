@@ -3,17 +3,15 @@ import { DetailPanel } from "@/ui/DetailPanel/index.js";
 import { HistoryPanel } from "@/ui/HistoryPanel/index.js";
 import { htmlToDOM } from "@/lib/utils.js";
 import { Animation } from "@/lib/animation.js";
-import { storage } from "@/lib/storage.js";
+import { user,historyStorage } from "@/data/user.js";
 import { pn } from "@/data/tri.js";
-import pnData from "@/data/pn.json";
 import template from "./template.html?raw";
 
 // ============================================
 // M = MODEL - Gestion des données
 // ============================================
 let M = {
-  pnData: pnData,  // Données du PN (pour GraphView)
-  pn: pn           // Structure indexée pour accès rapide
+  pn: pn  // Données du PN (via tri.js)
 };
 
 /**
@@ -23,7 +21,7 @@ let M = {
  */
 M.findACData = function(acCode) {
   try {
-    const progressMap = storage.loadProgressMap();
+    const progressMap = user.loadProgressMap();
     
     return {
       code: acCode,
@@ -42,7 +40,7 @@ M.findACData = function(acCode) {
  * @returns {Array} - Historique des modifications
  */
 M.getHistory = function() {
-  return storage.loadHistory();
+  return historyStorage.loadAll();
 };
 
 /**
@@ -50,14 +48,14 @@ M.getHistory = function() {
  * @returns {Object} - Statistiques
  */
 M.getStats = function() {
-  return storage.getStats();
+  return historyStorage.getStats();
 };
 
 /**
  * Exporte les données
  */
 M.exportHistory = function() {
-  storage.exportData();
+  historyStorage.exportData();
 };
 
 // ============================================
@@ -94,13 +92,16 @@ C.handleACClick = function(acCode) {
  * @param {Object} detail - {acCode, progress, oldProgress, libelle, couleur}
  */
 C.handleProgressChange = function(detail) {
-  // 1. Sauvegarder dans le storage (le libellé est récupéré automatiquement)
-  storage.save(detail.acCode, detail.progress, detail.oldProgress);
+  // 1. Sauvegarder la progression
+  user.save(detail.acCode, detail.progress);
   
-  // 2. Mettre à jour l'affichage du graphe
+  // 2. Ajouter à l'historique
+  historyStorage.add(detail.acCode, detail.oldProgress, detail.progress);
+  
+  // 3. Mettre à jour l'affichage du graphe
   V.graph.updateACProgress(detail.acCode, detail.progress, detail.couleur);
   
-  // 3. Rafraîchir l'historique
+  // 4. Rafraîchir l'historique
   C.refreshHistory();
 };
 
@@ -131,7 +132,7 @@ C.handleExport = function() {
  * Charge et applique les progressions sauvegardées
  */
 C.loadSavedProgress = function() {
-  const savedProgress = storage.loadProgressMap();
+  const savedProgress = user.loadProgressMap();
   const progressToApply = [];
   
   // Pour chaque progression sauvegardée (si vide, la boucle ne s'exécute pas)
