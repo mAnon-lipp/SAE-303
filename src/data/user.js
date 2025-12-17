@@ -109,6 +109,85 @@ historyStorage.exportData = function() {
     a.click();
     URL.revokeObjectURL(url);
 }
+/**
+ * Importe l'historique depuis un fichier JSON
+ * Fusionne avec l'existant en gardant le plus récent par AC
+ * @returns {Promise<Array>} Les progressions à appliquer [{acCode, progress, couleur}, ...]
+ */
+historyStorage.importData = function() {
+    return new Promise((resolve, reject) => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'application/json';
+        
+        input.onchange = async (e) => {
+            try {
+                const file = e.target.files[0];
+                if (!file) return reject(new Error('Aucun fichier'));
+                
+                const importedData = JSON.parse(await file.text());
+                
+                // Convertir en format historique si nécessaire
+                let importedHistory = Array.isArray(importedData) ? importedData : [];
+                
+                if (!Array.isArray(importedData) && importedData.progress) {
+                    // Format {progress: {AC: value}} → convertir en historique
+                    const date = importedData.lastUpdate || new Date().toISOString();
+                    for (const acCode in importedData.progress) {
+                        let label = acCode;
+                        try { label = pn.getAcLibelle(acCode); } catch (e) {}
+                        
+                        importedHistory.push({
+                            date, ac: acCode, oldProgress: 0,
+                            newProgress: importedData.progress[acCode], label
+                        });
+                    }
+                } else if (importedHistory.length === 0) {
+                    return reject(new Error('Format invalide'));
+                }
+                
+                // Fusionner et extraire les progressions les plus récentes
+                const allEntries = [...historyStorage.data, ...importedHistory];
+                allEntries.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                const newProgress = {};
+                const seen = new Set();
+                
+                for (const entry of allEntries) {
+                    if (!seen.has(entry.ac)) {
+                        newProgress[entry.ac] = entry.newProgress;
+                        seen.add(entry.ac);
+                    }
+                }
+                
+                // Sauvegarder tout
+                historyStorage.data = allEntries;
+                user.data.progress = newProgress;
+                user.data.lastUpdate = new Date().toISOString();
+                localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(allEntries));
+                localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user.data));
+                
+                // Préparer pour le graphe
+                const progressToApply = [];
+                for (const acCode in newProgress) {
+                    try {
+                        progressToApply.push({
+                            acCode, progress: newProgress[acCode],
+                            couleur: pn.getAcCouleur(acCode)
+                        });
+                    } catch (e) {}
+                }
+                
+                resolve(progressToApply);
+                
+            } catch (error) {
+                reject(error);
+            }
+        };
+        
+        input.click();
+    });
+}
 
 /**
  * Efface tout l'historique

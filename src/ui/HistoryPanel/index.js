@@ -12,6 +12,7 @@ class HistoryPanel {
       panel: this.root.querySelector(".history-panel__content"),
       close: this.root.querySelector(".history-panel__close"),
       export: this.root.querySelector(".history-panel__export"),
+      import: this.root.querySelector(".history-panel__import"),
       list: this.root.querySelector(".history-panel__list"),
       count: this.root.querySelector(".history-panel__count"),
       lastUpdate: this.root.querySelector(".history-panel__last-update")
@@ -28,6 +29,11 @@ class HistoryPanel {
       document.dispatchEvent(new CustomEvent('historypanel:export'));
       this._showExportFeedback();
     });
+    
+    this.elements.import.addEventListener("click", () => {
+      document.dispatchEvent(new CustomEvent('historypanel:import'));
+      this._showImportFeedback();
+    });
   }
   
   _showExportFeedback() {
@@ -35,6 +41,14 @@ class HistoryPanel {
     this.elements.export.textContent = "Exporté !";
     setTimeout(() => {
       this.elements.export.textContent = originalText;
+    }, 2000);
+  }
+  
+  _showImportFeedback() {
+    const originalText = this.elements.import.textContent;
+    this.elements.import.textContent = "Importé !";
+    setTimeout(() => {
+      this.elements.import.textContent = originalText;
     }, 2000);
   }
   

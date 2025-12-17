@@ -58,6 +58,14 @@ M.exportHistory = function() {
   historyStorage.exportData();
 };
 
+/**
+ * Importe les données
+ * @returns {Promise<Array>} - Progressions à appliquer
+ */
+M.importHistory = function() {
+  return historyStorage.importData();
+};
+
 // ============================================
 // C = CONTROLLER - Logique métier
 // ============================================
@@ -126,6 +134,26 @@ C.handleHistoryOpen = function() {
  */
 C.handleExport = function() {
   M.exportHistory();
+};
+
+/**
+ * Gère l'import des données
+ */
+C.handleImport = async function() {
+  try {
+    const progressToApply = await M.importHistory();
+    
+    // Met à jour tous les polygones
+    V.graph.applyProgressMap(progressToApply);
+    
+    // Rafraîchit l'historique
+    C.refreshHistory();
+    
+    console.log(`✅ Import réussi : ${progressToApply.length} AC mises à jour`);
+    
+  } catch (error) {
+    console.error('❌ Erreur import:', error);
+  }
 };
 
 /**
@@ -233,6 +261,11 @@ V.init = function() {
   // Écouter l'export des données
   document.addEventListener('historypanel:export', () => {
     C.handleExport();
+  });
+  
+  // Écouter l'import des données
+  document.addEventListener('historypanel:import', () => {
+    C.handleImport();
   });
   
   return V.rootPage;
