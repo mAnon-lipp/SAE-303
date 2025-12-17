@@ -59,34 +59,29 @@ class GraphView {
 
 
   /**
-   * Injecte les codes AC dans le SVG
-   * @param {Object} pnData - Données du programme national (JSON)
+   * Injecte les codes AC dans le SVG en utilisant les IDs des polygones
    */
-  injectACData(pnData) {
-    for (let compId in pnData) {
-      const competence = pnData[compId];
+  injectACData() {
+    const allACs = this.getAllACs();
+    
+    for (let i = 0; i < allACs.length; i++) {
+      const acElement = allACs[i];
+      const acCode = acElement.getAttribute('id');
       
-      for (let niveau of competence.niveaux) {
-        for (let ac of niveau.acs) {
-          const acElement = this.getAC(ac.code);
-          if (!acElement) continue;
-          
-          const bbox = acElement.getBBox();
-          const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-          
-          text.textContent = ac.code;
-          text.classList.add('ac-label');
-          text.setAttribute('x', bbox.x + bbox.width / 2);
-          text.setAttribute('y', bbox.y + bbox.height / 2);
-          text.setAttribute('text-anchor', 'middle');
-          text.setAttribute('dominant-baseline', 'middle');
-          text.setAttribute('fill', 'black');
-          text.setAttribute('font-size', '12');
-          text.setAttribute('pointer-events', 'none');
-          
-          acElement.parentElement.appendChild(text);
-        }
-      }
+      const bbox = acElement.getBBox();
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      
+      text.textContent = acCode;
+      text.classList.add('ac-label');
+      text.setAttribute('x', bbox.x + bbox.width / 2);
+      text.setAttribute('y', bbox.y + bbox.height / 2);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('dominant-baseline', 'middle');
+      text.setAttribute('fill', 'black');
+      text.setAttribute('font-size', '12');
+      text.setAttribute('pointer-events', 'none');
+      
+      acElement.parentElement.appendChild(text);
     }
   }
 
@@ -99,26 +94,10 @@ class GraphView {
    * @param {Function} callback - Fonction appelée lors du clic avec le code de l'AC
    */
   enableACInteractions(callback) {
-    const allACs = this.getAllACs();
-    
-    for (let i = 0; i < allACs.length; i++) {
-      const acElement = allACs[i];
-      acElement.style.cursor = 'pointer';
-      
-      acElement.addEventListener('click', () => {
-        callback(acElement.getAttribute('id'));
-      });
-      
-      acElement.addEventListener('mouseenter', () => {
-        if (!acElement.classList.contains('ac-active')) {
-          acElement.classList.add('ac-hover');
-        }
-      });
-      
-      acElement.addEventListener('mouseleave', () => {
-        acElement.classList.remove('ac-hover');
-      });
-    }
+    this.root.addEventListener('click', (e) => {
+      const ac = e.target.closest('path[id^="AC"]');
+      if (ac) callback(ac.id);
+    });
   }
 
 
@@ -200,7 +179,6 @@ class GraphView {
     for (let i = 0; i < progressEntries.length; i++) {
       this.updateACProgress(progressEntries[i].acCode, progressEntries[i].progress, progressEntries[i].couleur);
     }
-    console.log(`[GraphView] ${progressEntries.length} progressions appliquées`);
   }
 }
 

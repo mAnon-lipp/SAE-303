@@ -39,13 +39,13 @@
 }
 
 /* États interactifs des AC (Apprentissages Critiques) */
-.graph-svg [id^="AC"] {
+.graph-svg [id^="AC"]:not(.ac-active) {
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Effet hover */
-.graph-svg [id^="AC"].ac-hover {
+.graph-svg [id^="AC"]:not(.ac-active):hover {
   opacity: 0.8;
   filter: brightness(1.2);
 }
