@@ -110,6 +110,27 @@ historyStorage.exportData = function() {
     URL.revokeObjectURL(url);
 }
 
+historyStorage.importData = function() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    
+    input.addEventListener('change', async () => {
+        const file = input.files[0];
+        if (!file) return;
+        
+        const text = await file.text();
+        const data = JSON.parse(text);
+        
+        historyStorage.data = data;
+        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(historyStorage.data));
+        
+        document.dispatchEvent(new CustomEvent('historystorage:imported', { detail: data }));
+    });
+    
+    input.click();
+}
+
 
 /**
  * Efface tout l'historique

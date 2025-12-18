@@ -60,10 +60,9 @@ M.exportHistory = function() {
 
 /**
  * Importe les données
- * @returns {Promise<Array>} - Progressions à appliquer
  */
 M.importHistory = function() {
-  return historyStorage.importData();
+  historyStorage.importData();
 };
 
 // ============================================
@@ -139,21 +138,8 @@ C.handleExport = function() {
 /**
  * Gère l'import des données
  */
-C.handleImport = async function() {
-  try {
-    const progressToApply = await M.importHistory();
-    
-    // Met à jour tous les polygones
-    V.graph.applyProgressMap(progressToApply);
-    
-    // Rafraîchit l'historique
-    C.refreshHistory();
-    
-    console.log(`✅ Import réussi : ${progressToApply.length} AC mises à jour`);
-    
-  } catch (error) {
-    console.error('❌ Erreur import:', error);
-  }
+C.handleImport = function() {
+  M.importHistory();
 };
 
 /**
@@ -266,6 +252,12 @@ V.init = function() {
   // Écouter l'import des données
   document.addEventListener('historypanel:import', () => {
     C.handleImport();
+  });
+  
+  // Écouter la fin de l'import pour rafraîchir l'historique
+  document.addEventListener('historystorage:imported', (e) => {
+    C.refreshHistory();
+    console.log(` Import réussi : ${e.detail.length} entrées importées`);
   });
   
   return V.rootPage;
