@@ -254,9 +254,10 @@ V.init = function() {
     C.handleImport();
   });
   
-  // Écouter la fin de l'import pour rafraîchir l'historique
+  // Écouter la fin de l'import pour rafraîchir l'historique ET les progressions visuelles
   document.addEventListener('historystorage:imported', (e) => {
     C.refreshHistory();
+    C.loadSavedProgress(); // Recharger et appliquer les progressions au graphe
     console.log(` Import réussi : ${e.detail.length} entrées importées`);
   });
   

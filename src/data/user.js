@@ -125,12 +125,32 @@ historyStorage.importData = function() {
         historyStorage.data = data;
         localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(historyStorage.data));
         
+        // Reconstruire les progressions utilisateur à partir de l'historique
+        historyStorage.rebuildProgressFromHistory();
+        
         document.dispatchEvent(new CustomEvent('historystorage:imported', { detail: data }));
     });
     
     input.click();
 }
 
+
+/**
+ * Reconstruit les progressions utilisateur à partir de l'historique
+ */
+historyStorage.rebuildProgressFromHistory = function() {
+    const progressMap = {};
+    
+    // Prendre la dernière progression de chaque AC
+    historyStorage.data.forEach(entry => {
+        progressMap[entry.ac] = entry.newProgress;
+    });
+    
+    // Sauvegarder dans user.data et localStorage
+    user.data.progress = progressMap;
+    user.data.lastUpdate = new Date().toISOString();
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user.data));
+}
 
 /**
  * Efface tout l'historique
