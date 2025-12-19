@@ -1,18 +1,11 @@
-<<<<<<< HEAD
-=======
 /* Import des polices Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Jomhuria&family=Montserrat:wght@400;700&display=swap');
 
->>>>>>> historique-sauvegarde
 /* import des styles du ou des layouts */
 @import "./layouts/root/style.css";
 
 /* import des styles des pages */
-<<<<<<< HEAD
-@import "./pages/svg-demo1/style.css";
-=======
 @import "./pages/svg-final/style.css";
->>>>>>> historique-sauvegarde
 
 /* import des styles des composants UI */
 @import "./ui/header/style.css";
