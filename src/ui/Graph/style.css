@@ -1,0 +1,145 @@
+/* ============================================
+   US001: Structure et Intégration du SVG
+   US004: Interaction et Affichage du Détail
+   Le "Plateau de jeu" - Styles responsives
+   ============================================ */
+
+/* Import Jomhuria font pour les labels */
+@import url('https://fonts.googleapis.com/css2?family=Jomhuria&display=swap');
+
+
+
+/* SVG Responsive - styles appliqués sur l'élément racine */
+.graph-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  max-width: 1440px;
+}
+
+/* US003: Styles pour les labels de compétences et AC */
+.comp-label,
+.ac-label {
+  font-family: 'Jomhuria', cursive;
+  fill: black;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+  user-select: none;
+}
+
+.comp-label {
+  font-size: 24px;
+  font-weight: 400;
+}
+
+.ac-label {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* États interactifs des AC (Apprentissages Critiques) */
+.graph-svg [id^="AC"]:not(.ac-active) {
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Effet hover */
+.graph-svg [id^="AC"]:not(.ac-active):hover {
+  opacity: 0.8;
+  filter: brightness(1.2);
+}
+
+/* Animation de pulsation pour l'état actif */
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 8px var(--glow-color)) brightness(1.2);
+  }
+  50% {
+    opacity: 0.6;
+    filter: drop-shadow(0 0 20px var(--glow-color)) brightness(1.6);
+  }
+}
+
+/* État actif (élément sélectionné) */
+.graph-svg [id^="AC"].ac-active {
+  stroke-width: 2;
+  animation: pulse-glow 1.3s ease-in-out infinite;
+}
+
+/* Halos colorés par compétence */
+.graph-svg [id^="AC"].ac-active[data-color="c1"] {
+  --glow-color: var(--color-c1);
+  stroke: var(--color-c1);
+}
+
+.graph-svg [id^="AC"].ac-active[data-color="c2"] {
+  --glow-color: var(--color-c2);
+  stroke: var(--color-c2);
+}
+
+.graph-svg [id^="AC"].ac-active[data-color="c3"] {
+  --glow-color: var(--color-c3);
+  stroke: var(--color-c3);
+}
+
+.graph-svg [id^="AC"].ac-active[data-color="c4"] {
+  --glow-color: var(--color-c4);
+  stroke: var(--color-c4);
+}
+
+.graph-svg [id^="AC"].ac-active[data-color="c5"] {
+  --glow-color: var(--color-c5);
+  stroke: var(--color-c5);
+}
+
+/* Groupes de compétences */
+.graph-svg g[id^="comp-"] {
+  transition: transform 0.3s ease;
+}
+
+/* Groupes de niveaux */
+.graph-svg g[id^="niveau_"] {
+  transition: opacity 0.3s ease;
+}
+
+/* ============================================
+   US005: États de progression des AC
+   ============================================ */
+
+/* AC avec progression (opacité gérée dynamiquement par JS) */
+.graph-svg [id^="AC"].ac-has-progress {
+  transition: opacity 0.3s ease, fill 0.3s ease;
+}
+
+/* Glow statique pour les AC à 100% */
+.graph-svg [id^="AC"].ac-complete {
+  filter: drop-shadow(0 0 8px var(--ac-glow-color)) brightness(1.2);
+}
+
+/* Couleurs par compétence (appliquées avec la progression) */
+.graph-svg [id^="AC"].ac-color-c1 {
+  fill: var(--color-c1);
+  --ac-glow-color: var(--color-c1);
+}
+
+.graph-svg [id^="AC"].ac-color-c2 {
+  fill: var(--color-c2);
+  --ac-glow-color: var(--color-c2);
+}
+
+.graph-svg [id^="AC"].ac-color-c3 {
+  fill: var(--color-c3);
+  --ac-glow-color: var(--color-c3);
+}
+
+.graph-svg [id^="AC"].ac-color-c4 {
+  fill: var(--color-c4);
+  --ac-glow-color: var(--color-c4);
+}
+
+.graph-svg [id^="AC"].ac-color-c5 {
+  fill: var(--color-c5);
+  --ac-glow-color: var(--color-c5);
+}

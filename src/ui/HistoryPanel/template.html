@@ -1,0 +1,40 @@
+<div class="history-panel">
+  <div class="history-panel-overlay"></div>
+  <div class="history-panel__content">
+    <button class="history-panel__close">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+    
+    <div class="history-panel__header">
+      <h2 class="history-panel__title">Historique</h2>
+      <p class="history-panel__subtitle">Vos modifications</p>
+    </div>
+    
+    <div class="history-panel__stats">
+      <div class="history-panel__stat-item">
+        <span class="history-panel__stat-label">Modifications</span>
+        <span class="history-panel__stat-value history-panel__count">0</span>
+      </div>
+      <div class="history-panel__stat-item">
+        <span class="history-panel__stat-label">Dernière mise à jour</span>
+        <span class="history-panel__stat-value history-panel__last-update">Jamais</span>
+      </div>
+    </div>
+    
+    <div class="history-panel__actions">
+      <button class="history-panel__export">
+        💾 Exporter ma sauvegarde
+      </button>
+      <button class="history-panel__import">
+        📥 Importer une sauvegarde
+      </button>
+    </div>
+    
+    <div class="history-panel__list">
+      <!-- Les entrées d'historique seront injectées ici -->
+    </div>
+  </div>
+</div>

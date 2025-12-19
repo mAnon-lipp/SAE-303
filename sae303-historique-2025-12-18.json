@@ -1,0 +1,100 @@
+[
+  {
+    "date": "2025-12-17T13:12:37.010Z",
+    "ac": "AC13.02",
+    "oldProgress": 14,
+    "newProgress": 41,
+    "label": "Produire des pistes graphiques et des planches d’inspiration"
+  },
+  {
+    "date": "2025-12-17T13:12:32.902Z",
+    "ac": "AC13.05",
+    "oldProgress": 0,
+    "newProgress": 76,
+    "label": "Designer une interface web (wireframes, UI)"
+  },
+  {
+    "date": "2025-12-17T08:57:40.591Z",
+    "ac": "AC14.01",
+    "oldProgress": 0,
+    "newProgress": 76,
+    "label": "Exploiter de manière autonome un environnement de développement efficace et productif"
+  },
+  {
+    "date": "2025-12-15T09:17:47.946Z",
+    "ac": "AC13.02",
+    "oldProgress": 0,
+    "newProgress": 14,
+    "label": "Produire des pistes graphiques et des planches d’inspiration"
+  },
+  {
+    "date": "2025-12-15T09:17:47.946Z",
+    "ac": "AC12.03",
+    "oldProgress": 0,
+    "newProgress": 95,
+    "label": "Proposer une recommandation marketing (cibles, objectifs, points de contact)"
+  },
+  {
+    "date": "2025-12-15T09:17:47.946Z",
+    "ac": "AC14.04",
+    "oldProgress": 0,
+    "newProgress": 79,
+    "label": "Mettre en ligne une application Web en utilisant une solution d’hébergement standard"
+  },
+  {
+    "date": "2025-12-15T09:17:47.946Z",
+    "ac": "AC14.02",
+    "oldProgress": 0,
+    "newProgress": 25,
+    "label": "Produire des pages Web fluides incluant un balisage sémantique efficace et des interactions simples"
+  },
+  {
+    "date": "2025-12-15T09:17:47.946Z",
+    "ac": "AC15.03",
+    "oldProgress": 0,
+    "newProgress": 100,
+    "label": "Découvrir les écosystèmes d’innovation numérique (fab labs, living labs, tiers-lieux, incubateurs…)"
+  },
+  {
+    "date": "2025-12-15T09:17:47.946Z",
+    "ac": "AC11.02",
+    "oldProgress": 0,
+    "newProgress": 29,
+    "label": "Évaluer un site web, un produit multimédia ou un dispositif interactif existant en s’appuyant sur des guides de bonnes pratiques"
+  },
+  {
+    "date": "2025-12-15T08:36:31.367Z",
+    "ac": "AC13.02",
+    "oldProgress": 0,
+    "newProgress": 14,
+    "label": "Produire des pistes graphiques et des planches d’inspiration"
+  },
+  {
+    "date": "2025-12-15T08:36:31.367Z",
+    "ac": "AC12.03",
+    "oldProgress": 0,
+    "newProgress": 95,
+    "label": "Proposer une recommandation marketing (cibles, objectifs, points de contact)"
+  },
+  {
+    "date": "2025-12-15T08:36:31.367Z",
+    "ac": "AC14.04",
+    "oldProgress": 0,
+    "newProgress": 79,
+    "label": "Mettre en ligne une application Web en utilisant une solution d’hébergement standard"
+  },
+  {
+    "date": "2025-12-15T08:36:31.367Z",
+    "ac": "AC14.02",
+    "oldProgress": 0,
+    "newProgress": 25,
+    "label": "Produire des pages Web fluides incluant un balisage sémantique efficace et des interactions simples"
+  },
+  {
+    "date": "2025-12-15T08:36:31.367Z",
+    "ac": "AC15.03",
+    "oldProgress": 0,
+    "newProgress": 100,
+    "label": "Découvrir les écosystèmes d’innovation numérique (fab labs, living labs, tiers-lieux, incubateurs…)"
+  }
+]
