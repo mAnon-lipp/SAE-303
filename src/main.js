@@ -9,9 +9,10 @@ import { SvgDemo3Page } from "./pages/svg-demo3/page.js";
 import { SvgDemo4Page } from "./pages/svg-demo4/page.js";
 import { SvgDemo5Page } from "./pages/svg-demo5/page.js";
 
-// Exemple d'utilisation avec authentification
-
-const router = new Router("app");
+// On passe le 'base' défini dans vite.config.js au routeur
+const router = new Router("app", { 
+  base: import.meta.env.BASE_URL 
+});
 
 // Routes sans layout (plein écran)
 router.addRoute("/", SvgDemo1Page);
