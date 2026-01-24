@@ -8,8 +8,8 @@ export default defineConfig({
     },
   },
   build: {
-    target: "esnext",
+    target: "esnext", 
   },
-  // REMPLACEZ 'sae-303' PAR LE NOM EXACT DE VOTRE DÉPÔT GITHUB
-  base: "/sae-303/", 
+  // C'est cette ligne qui corrige vos erreurs 404
+  base: "/SAE-303/",
 });
