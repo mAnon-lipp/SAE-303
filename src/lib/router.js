@@ -16,14 +16,23 @@ class Router {
     this.isAuthenticated = false;
     this.loginPath = options.loginPath || '/login';
     
+    // GESTION DU CHEMIN DE BASE (GITHUB PAGES)
+    // On retire le slash final s'il existe pour simplifier la concaténation
+    this.base = options.base || '';
+    if (this.base.endsWith('/')) {
+      this.base = this.base.slice(0, -1);
+    }
+    
     // Écouter les changements d'URL
     window.addEventListener('popstate', () => this.handleRoute());
     
     // Intercepter les clics sur les liens
     document.addEventListener('click', (e) => {
-      if (e.target.matches('[data-link]')) {
+      // Utilisation de closest pour gérer les clics sur les éléments enfants d'un lien (ex: icône)
+      const link = e.target.closest('[data-link]');
+      if (link) {
         e.preventDefault();
-        this.navigate(e.target.getAttribute('href'));
+        this.navigate(link.getAttribute('href'));
       }
     });
   }
@@ -106,13 +115,23 @@ class Router {
   
   // Naviguer vers une route
   navigate(path) {
-    window.history.pushState(null, null, path);
+    // On ajoute le préfixe (ex: /SAE-303) devant l'URL pour l'historique du navigateur
+    const fullPath = this.base + path;
+    window.history.pushState(null, null, fullPath);
     this.handleRoute();
   }
   
   // Gérer la route actuelle
   handleRoute() {
-    const path = window.location.pathname;
+    let path = window.location.pathname;
+    
+    // Si l'URL commence par la base (ex: /SAE-303/...), on l'enlève pour trouver la route interne
+    if (this.base && path.startsWith(this.base)) {
+      path = path.substring(this.base.length);
+    }
+    
+    // Si le chemin est vide après avoir retiré la base, c'est la racine "/"
+    if (path === '') path = '/';
     
     // Trouver la route correspondante
     for (const route of this.routes) {
@@ -157,7 +176,6 @@ class Router {
     const isElement = content instanceof HTMLElement;
     
     // Appliquer le layout seulement si useLayout est true
-    
     if (route.useLayout) {
       const layoutFn = this.findLayout(path);
       if (layoutFn) {
@@ -170,7 +188,7 @@ class Router {
         
         if (contentSlot) {
           // Insérer le contenu de la page dans le slot
-          if (isElement ||isFragment) {
+          if (isElement || isFragment) {
             contentSlot.replaceWith(content);
           } else {
             // Créer un fragment temporaire pour le HTML string
