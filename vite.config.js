@@ -2,13 +2,14 @@ import { defineConfig } from "vite";
 import path from "path";
 
 export default defineConfig({
-   resolve: {
+  resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),
     },
   },
   build: {
-    target: "esnext", //browsers can handle the latest ES features
+    target: "esnext",
   },
-  base: "/",
+  // REMPLACEZ 'sae-303' PAR LE NOM EXACT DE VOTRE DÉPÔT GITHUB
+  base: "/sae-303/", 
 });
