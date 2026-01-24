@@ -4,22 +4,25 @@ import template from "./template.html?raw";
 
 import { Animation } from "@/lib/animation.js";
 
-let M = {};
+// CORRECTION : On importe le JSON directement au lieu de faire un fetch
+import starsData from "@/data/stars.json";
 
-let response = await fetch('/src/data/stars.json');
-M.starsData = await response.json();
+let M = {};
+// On assigne directement les données importées
+M.starsData = starsData;
 
 let C = {};
 
 C.handler_clickStar = function(ev) {
-  if (ev.target.dataset.name === 'star') {
-    Animation.bounce( ev.target, 1.5, 50 );
+  // On utilise closest pour gérer le clic même si on clique sur un enfant du SVG
+  const starElement = ev.target.closest('[data-name="star"]');
+  if (starElement) {
+    Animation.bounce(starElement, 1.5, 50);
   }
 };
 
 
 C.init = function() {
-
   return V.init();
 }
 
